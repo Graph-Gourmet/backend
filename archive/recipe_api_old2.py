@@ -12,7 +12,7 @@ with open("food_data.json", "r") as json_file:
     recipe_data = json.load(json_file)
 
 
-with open("food_graph_backup.pkl", "rb") as file:
+with open("food_graph.pkl", "rb") as file:
     G = pickle.load(file)
 
 original_graph = copy.deepcopy(G)
@@ -40,7 +40,7 @@ def dijkstra(graph, start_node, k=1):
     return top_k_nodes
 
 
-@app.route("/", methods=["POST"])
+@app.route("/api/v1/recipes/similar", methods=["POST"])
 def top_10_recipes_endpoint():
     global G
     nodo_inicial = int(request.args.get("id", default=4400))
