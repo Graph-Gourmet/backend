@@ -40,7 +40,7 @@ for i, receta1 in enumerate(data):
             G.add_edge(receta1["id"], receta2["id"], weight=similitud)
 
 # Save the graph to a file using pickle
-with open("food_graph.pkl", "wb") as file:
+with open("food_graph_backup.pkl", "wb") as file:
     pickle.dump(G, file)
 
 print("Graph saved to food_graph.pkl")
