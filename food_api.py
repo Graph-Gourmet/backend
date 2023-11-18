@@ -65,9 +65,6 @@ def meets_filter_criteria(recipe, unwanted_ingredients, filters):
     )
 
 
-# @app.route("/api/v1/recipes/similar", methods=["POST"])
-
-
 @app.route("/api/v1/recipes/similar", methods=["POST"])
 def top_10_recipes_endpoint_filters():
     global G
@@ -98,9 +95,12 @@ def top_10_recipes_endpoint_filters():
 
     closest_recipes = []
     chosen_recipe_ids = []
+    recipe = next((i for i in recipe_data if i["id"] == nodo_inicial), None)
+    closest_recipes.append(recipe)
+    chosen_recipe_ids.append(nodo_inicial)
 
     try:
-        while len(closest_recipes) < 10:
+        while len(closest_recipes) <= 10:
             if len(G) < 10:
                 G = copy.deepcopy(original_graph)
 
@@ -119,9 +119,9 @@ def top_10_recipes_endpoint_filters():
         chosen_subgraph = copy.deepcopy(original_graph).subgraph(chosen_recipe_ids)
 
         # Print graph
-        pos = nx.spring_layout(chosen_subgraph)
-        nx.draw(chosen_subgraph, pos, with_labels=True, font_weight="bold")
-        plt.show()
+        # pos = nx.spring_layout(chosen_subgraph)
+        # nx.draw(chosen_subgraph, pos, with_labels=True, font_weight="bold")
+        # plt.show()
 
         response_data = {
             "closest_recipes": closest_recipes,
