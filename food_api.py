@@ -2,8 +2,10 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 import pickle
 import networkx as nx
+import matplotlib.pyplot as plt
 import json
 import copy
+import base64
 
 app = Flask(__name__)
 CORS(app, resources={r"/api/*": {"origins": "*"}})
@@ -87,7 +89,15 @@ def top_10_recipes_endpoint_filters():
         "min_sugar": data.get("min_sugar", 0),
     }
 
+    for key in filters:
+        if filters[key] is None:
+            if "max_" in key:
+                filters[key] = 1000000
+            elif "min_" in key:
+                filters[key] = 0
+
     closest_recipes = []
+    chosen_recipe_ids = []
 
     try:
         while len(closest_recipes) < 10:
@@ -102,12 +112,28 @@ def top_10_recipes_endpoint_filters():
 
             if meets_filter_criteria(recipe, unwanted_ingredients, filters):
                 closest_recipes.append(recipe)
+                chosen_recipe_ids.append(recipe_id[0])
 
             G.remove_node(recipe_id[0])
 
+        chosen_subgraph = copy.deepcopy(original_graph).subgraph(chosen_recipe_ids)
+
+        # Print graph
+        pos = nx.spring_layout(chosen_subgraph)
+        nx.draw(chosen_subgraph, pos, with_labels=True, font_weight="bold")
+        plt.show()
+
+        response_data = {
+            "closest_recipes": closest_recipes,
+            "graph_data": {
+                "nodes": list(chosen_subgraph.nodes(data=True)),
+                "edges": list(chosen_subgraph.edges(data=True)),
+            },
+        }
+
         G = copy.deepcopy(original_graph)
 
-        return jsonify(closest_recipes), 200
+        return jsonify(response_data), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
